@@ -2,7 +2,6 @@
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\User\User;
@@ -15,11 +14,6 @@ class plgSystemDfm extends CMSPlugin
     public $db;
 
     /**
-     * @var CMSApplication
-     */
-    public $app;
-
-    /**
      * Constructor.
      *
      * @param \JEventDispatcher $subject
@@ -28,10 +22,6 @@ class plgSystemDfm extends CMSPlugin
     public function __construct(&$subject, $config = array())
     {
         parent::__construct($subject, $config);
-//        $this->params['license_key_field'] = 'license-key';
-//        $this->params['trial_date_field'] = 'trial-start';
-//        $this->params['trial_license_key'] = 'TRIALK-12345-ABCDE-FGHIJ-67890';
-//        $this->params['trial_license_duration'] = 'P1M';
     }
 
     public function onUserAfterSave (array $old_data, bool $isNew, bool $success)
@@ -88,10 +78,10 @@ class plgSystemDfm extends CMSPlugin
         }
     }
 
-    protected function setUserField (User $user, string $name, string $value)
+    protected function setUserField (User $user, string $name, string $value): bool
     {
         // Loading the model
-        JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_fields/models', 'FieldsModel');
+        BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_fields/models', 'FieldsModel');
         /** @var FieldsModelField $model */
         $model = BaseDatabaseModel::getInstance('Field', 'FieldsModel', array('ignore_request' => true));
         if ($field = $this->getUserField($user, $name)) {
@@ -100,7 +90,7 @@ class plgSystemDfm extends CMSPlugin
         return false;
     }
 
-    protected function getUserField (User $user, string $name)
+    protected function getUserField (User $user, string $name): ?object
     {
         foreach (FieldsHelper::getFields('com_users.user', $user) as $field) {
             if ($field->name === $name) {
