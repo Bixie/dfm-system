@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.1" type="plugin" group="system" method="upgrade">
+    <name>System - DFM</name>
+    <version>0.1</version>
+    <description>System Plugin for DFM</description>
+    <creationDate>April 2020</creationDate>
+    <copyright>Copyright (C) Bixie</copyright>
+    <license>GNU General Public License</license>
+    <author>Bixie</author>
+    <authorEmail>info@bixie.org</authorEmail>
+    <authorUrl>https://bixie.org</authorUrl>
+    <scriptfile>script.php</scriptfile>
+    <files>
+        <filename plugin="dfm">dfm.php</filename>
+        <folder>src</folder>
+    </files>
+</extension>
