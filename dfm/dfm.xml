@@ -12,6 +12,57 @@
     <scriptfile>script.php</scriptfile>
     <files>
         <filename plugin="dfm">dfm.php</filename>
-        <folder>src</folder>
     </files>
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+                <field
+                        name="license_key_field"
+                        type="sql"
+                        label="Veld voor licentiesleutel"
+                        description=""
+                        sql_select="name,title"
+                        sql_from="#__fields"
+                        sql_where="context = 'com_users.user'"
+                        sql_order="title ASC"
+                        key_field="name"
+                        value_field="title"
+                        default=""
+                />
+                <field
+                        name="trial_date_field"
+                        type="sql"
+                        label="Veld voor trial begindatum"
+                        description=""
+                        sql_select="name,title"
+                        sql_from="#__fields"
+                        sql_where="context = 'com_users.user'"
+                        sql_order="title ASC"
+                        key_field="name"
+                        value_field="title"
+                        default=""
+                />
+                <field
+                        name="trial_license_key"
+                        type="text"
+                        label="Licentiesleutel voor trial"
+                        description=""
+                        default=""
+                />
+                <field
+                        name="trial_license_duration"
+                        type="list"
+                        label="Lengte trial periode"
+                        description=""
+                        default="P1M"
+                        filter="string"
+                >
+                    <option value="P1M">1 maand</option>
+                    <option value="P2M">2 maanden</option>
+                    <option value="P3M">3 maanden</option>
+                    <option value="P6M">6 maanden</option>
+                </field>
+            </fieldset>
+        </fields>
+    </config>
 </extension>

@@ -21,7 +21,7 @@ class plgSystemDfmInstallerScript
         JFactory::getDBO()->setQuery(
             "UPDATE #__extensions SET "
             .($type == 'install' ? 'enabled = 1, ' : '')
-            ."ordering = 0 WHERE type = 'plugin' AND folder = 'system' AND element = 'dfm'"
+            ."ordering = 999 WHERE type = 'plugin' AND folder = 'system' AND element = 'dfm'"
         )->execute();
     }
 }
