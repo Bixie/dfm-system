@@ -43,6 +43,19 @@
                         default=""
                 />
                 <field
+                        name="csi_email_field"
+                        type="sql"
+                        label="Veld voor CSI email"
+                        description=""
+                        sql_select="name,title"
+                        sql_from="#__fields"
+                        sql_where="context = 'com_users.user'"
+                        sql_order="title ASC"
+                        key_field="name"
+                        value_field="title"
+                        default=""
+                />
+                <field
                         name="trial_license_key"
                         type="text"
                         label="Licentiesleutel voor trial"
@@ -62,6 +75,13 @@
                     <option value="P3M">3 maanden</option>
                     <option value="P6M">6 maanden</option>
                 </field>
+                <field
+                        name="csi_check_url"
+                        type="text"
+                        label="URL voor CSI checker"
+                        description=""
+                        default=""
+                />
             </fieldset>
         </fields>
     </config>

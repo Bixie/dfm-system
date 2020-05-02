@@ -62,6 +62,21 @@ class plgSystemDfm extends CMSPlugin
         return null;
     }
 
+    public function getUserDfmAppData (User $user): array
+    {
+        $userData = [
+            'noLicense' => false,
+            'csiActive' => false,
+        ];
+        if (!$licenseKey = $this->getActiveLicenseKey($user)) {
+            $userData['noLicense'] = true;
+        }
+        if ($field = $this->getUserField($user, $this->params['csi_email_field']) and $email = $field->rawvalue) {
+            $userData['csiActive'] = $this->checkCsiSubscription($email);
+        }
+        return $userData;
+    }
+
     protected function getUserByEmail (string $email): ?User
     {
         $query = $this->db->getQuery(true)
@@ -112,5 +127,17 @@ class plgSystemDfm extends CMSPlugin
         } catch (Exception $e) {
             return false;
         }
+    }
+
+    protected function checkCsiSubscription (string $email): bool
+    {
+        try {
+            $response = file_get_contents(str_replace('{email}', $email, $this->params['csi_check_url']));
+
+            return (bool) $response;
+        } catch (Exception $e) {
+            //ignore
+        }
+        return false;
     }
 }
