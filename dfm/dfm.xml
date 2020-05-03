@@ -17,45 +17,6 @@
         <fields name="params">
             <fieldset name="basic">
                 <field
-                        name="license_key_field"
-                        type="sql"
-                        label="Veld voor licentiesleutel"
-                        description=""
-                        sql_select="name,title"
-                        sql_from="#__fields"
-                        sql_where="context = 'com_users.user'"
-                        sql_order="title ASC"
-                        key_field="name"
-                        value_field="title"
-                        default=""
-                />
-                <field
-                        name="trial_date_field"
-                        type="sql"
-                        label="Veld voor trial begindatum"
-                        description=""
-                        sql_select="name,title"
-                        sql_from="#__fields"
-                        sql_where="context = 'com_users.user'"
-                        sql_order="title ASC"
-                        key_field="name"
-                        value_field="title"
-                        default=""
-                />
-                <field
-                        name="csi_email_field"
-                        type="sql"
-                        label="Veld voor CSI email"
-                        description=""
-                        sql_select="name,title"
-                        sql_from="#__fields"
-                        sql_where="context = 'com_users.user'"
-                        sql_order="title ASC"
-                        key_field="name"
-                        value_field="title"
-                        default=""
-                />
-                <field
                         name="trial_license_key"
                         type="text"
                         label="Licentiesleutel voor trial"
@@ -80,6 +41,73 @@
                         type="text"
                         label="URL voor CSI checker"
                         description=""
+                        default=""
+                />
+            </fieldset>
+            <fieldset name="fields" label="Velden">
+                <field
+                        name="license_key_field"
+                        type="sql"
+                        label="Veld voor licentiesleutel"
+                        description=""
+                        sql_select="name,title"
+                        sql_from="#__fields"
+                        sql_where="context = 'com_users.user'"
+                        sql_order="ordering ASC"
+                        key_field="name"
+                        value_field="title"
+                        default=""
+                />
+                <field
+                        name="trial_date_field"
+                        type="sql"
+                        label="Veld voor trial begindatum"
+                        description=""
+                        sql_select="name,title"
+                        sql_from="#__fields"
+                        sql_where="context = 'com_users.user'"
+                        sql_order="ordering ASC"
+                        key_field="name"
+                        value_field="title"
+                        default=""
+                />
+                <field
+                        name="csi_email_field"
+                        type="sql"
+                        label="Veld voor CSI email"
+                        description=""
+                        sql_select="name,title"
+                        sql_from="#__fields"
+                        sql_where="context = 'com_users.user'"
+                        sql_order="ordering ASC"
+                        key_field="name"
+                        value_field="title"
+                        default=""
+                />
+                <field
+                        name="gameplans_field"
+                        type="sql"
+                        label="Veld voor Gameplans data"
+                        description=""
+                        sql_select="name,title"
+                        sql_from="#__fields"
+                        sql_where="context = 'com_users.user'"
+                        sql_order="ordering ASC"
+                        key_field="name"
+                        value_field="title"
+                        default=""
+                />
+                <field
+                        name="watchlists_field"
+                        type="sql"
+                        label="Veld voor Gameplans data"
+                        description=""
+                        sql_select="name,title"
+                        sql_from="#__fields"
+                        sql_where="context = 'com_users.user'"
+                        sql_order="ordering ASC"
+                        key_field="name"
+                        value_field="title"
                         default=""
                 />
             </fieldset>

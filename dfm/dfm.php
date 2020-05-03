@@ -67,6 +67,10 @@ class plgSystemDfm extends CMSPlugin
         $userData = [
             'noLicense' => false,
             'csiActive' => false,
+            'fields' => [
+                'gameplans' => [],
+                'watchlists' => [],
+            ],
         ];
         if (!$licenseKey = $this->getActiveLicenseKey($user)) {
             $userData['noLicense'] = true;
@@ -74,7 +78,26 @@ class plgSystemDfm extends CMSPlugin
         if ($field = $this->getUserField($user, $this->params['csi_email_field']) and $email = $field->rawvalue) {
             $userData['csiActive'] = $this->checkCsiSubscription($email);
         }
+        if ($field = $this->getUserField($user, $this->params['gameplans_field']) and $json = $field->rawvalue) {
+            $userData['fields']['gameplans'] = json_decode($json, true);
+        }
+        if ($field = $this->getUserField($user, $this->params['watchlists_field']) and $json = $field->rawvalue) {
+            $userData['fields']['watchlists'] = json_decode($json, true);
+        }
         return $userData;
+    }
+
+    public function updateUserField (User $user, string $field_name, string $value): bool
+    {
+        $field_names = [
+            'gameplans' => $this->params['gameplans_field'],
+            'watchlists' => $this->params['watchlists_field'],
+            'csi_email' => $this->params['csi_email_field'],
+        ];
+        if (!isset($field_names[$field_name])) {
+            return false;
+        }
+        return $this->setUserField($user, $field_names[$field_name], $value);
     }
 
     protected function getUserByEmail (string $email): ?User
