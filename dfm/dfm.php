@@ -49,32 +49,25 @@ class plgSystemDfm extends CMSPlugin
     public function getActiveLicenseKey (User $user): ?string
     {
         if ($user->id) {
-            //get key from field
-            if ($field = $this->getUserField($user, $this->params['license_key_field']) and $key = $field->rawvalue) {
-                return $key;
-            }
-            //valid trial?
-            if ($field = $this->getUserField($user, $this->params['trial_date_field'])
-                and $this->trialDateValid($field->rawvalue)) {
-                return $this->params['trial_license_key'];
-            }
+            ['key' => $key] = $this->getLicenseInfo($user);
+            return $key;
         }
         return null;
     }
 
     public function getUserDfmAppData (User $user): array
     {
+        ['key' => $key, 'isTrial' => $isTrial, 'trialEnd' => $trialEnd,] = $this->getLicenseInfo($user);
         $userData = [
-            'noLicense' => false,
+            'noLicense' => !$key,
+            'isTrial' => $isTrial,
+            'trialEnd' => $trialEnd,
             'csiActive' => false,
             'fields' => [
                 'gameplans' => [],
                 'watchlists' => [],
             ],
         ];
-        if (!$licenseKey = $this->getActiveLicenseKey($user)) {
-            $userData['noLicense'] = true;
-        }
         if ($field = $this->getUserField($user, $this->params['csi_email_field']) and $email = $field->rawvalue) {
             $userData['csiActive'] = $this->checkCsiSubscription($email);
         }
@@ -138,17 +131,34 @@ class plgSystemDfm extends CMSPlugin
         return null;
     }
 
-    protected function trialDateValid (string $trialDate): bool
+    protected function getLicenseInfo (User $user): array
+    {
+        $license = ['key' => null, 'is_trial' => false, 'trial_end' => null,];
+        //get key from field
+        if ($field = $this->getUserField($user, $this->params['license_key_field']) and $key = $field->rawvalue) {
+            $license['key'] = $key;
+        }
+        //valid trial?
+        if ($field = $this->getUserField($user, $this->params['trial_date_field'])
+            and $trial_end = $this->validTrialEndDate($field->rawvalue)) {
+            $license['key'] =  $this->params['trial_license_key'];
+            $license['isTrial'] =  true;
+            $license['trialEnd'] =  $trial_end;
+        }
+        return $license;
+    }
+
+    protected function validTrialEndDate (string $trialDate): ?string
     {
         if (!$trialDate) {
-            return false;
+            return null;
         }
         try {
             $date = new \DateTime($trialDate);
             $validTill = $date->add(new \DateInterval($this->params['trial_license_duration']));
-            return new DateTime() < $validTill;
+            return new DateTime() < $validTill ? $validTill->format(DATE_ATOM) : null;
         } catch (Exception $e) {
-            return false;
+            return null;
         }
     }
 
