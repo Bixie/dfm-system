@@ -64,11 +64,14 @@ class plgSystemDfm extends CMSPlugin
             'trialEnd' => $trialEnd,
             'csiActive' => false,
             'fields' => [
+                'license_key' => $key,
+                'csi_email' => '',
                 'gameplans' => [],
                 'watchlists' => [],
             ],
         ];
         if ($field = $this->getUserField($user, $this->params['csi_email_field']) and $email = $field->rawvalue) {
+            $userData['fields']['csi_email'] = $email;
             $userData['csiActive'] = $this->checkCsiSubscription($email);
         }
         if ($field = $this->getUserField($user, $this->params['gameplans_field']) and $json = $field->rawvalue) {
@@ -83,6 +86,7 @@ class plgSystemDfm extends CMSPlugin
     public function updateUserField (User $user, string $field_name, string $value): bool
     {
         $field_names = [
+            'license_key' => $this->params['license_key_field'],
             'gameplans' => $this->params['gameplans_field'],
             'watchlists' => $this->params['watchlists_field'],
             'csi_email' => $this->params['csi_email_field'],
