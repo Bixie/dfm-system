@@ -143,9 +143,8 @@ class plgSystemDfm extends CMSPlugin
             $license['key'] = $key;
         }
         //valid trial?
-        if ($field = $this->getUserField($user, $this->params['trial_date_field'])
+        if (empty($license['key']) && $field = $this->getUserField($user, $this->params['trial_date_field'])
             and $trial_end = $this->validTrialEndDate($field->rawvalue)) {
-            $license['key'] =  $this->params['trial_license_key'];
             $license['isTrial'] =  true;
             $license['trialEnd'] =  $trial_end;
         }

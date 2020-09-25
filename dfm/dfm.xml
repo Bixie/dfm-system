@@ -31,6 +31,7 @@
                         default="P1M"
                         filter="string"
                 >
+                    <option value="P14D">14 dagen</option>
                     <option value="P1M">1 maand</option>
                     <option value="P2M">2 maanden</option>
                     <option value="P3M">3 maanden</option>
