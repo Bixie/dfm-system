@@ -49,8 +49,8 @@ class plgSystemDfm extends CMSPlugin
     public function getActiveLicenseKey (User $user): ?string
     {
         if ($user->id) {
-            ['key' => $key] = $this->getLicenseInfo($user);
-            return $key;
+            ['key' => $key, 'isTrial' => $isTrial,] = $this->getLicenseInfo($user);
+            return $isTrial ? $this->params['trial_license_key'] : $key;
         }
         return null;
     }
