@@ -67,7 +67,6 @@ class plgSystemDfm extends CMSPlugin
                 'license_key' => $key,
                 'csi_email' => '',
                 'gameplans' => [],
-                'watchlists' => [],
             ],
         ];
         if ($field = $this->getUserField($user, $this->params['csi_email_field']) and $email = $field->rawvalue) {
