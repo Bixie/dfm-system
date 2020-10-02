@@ -77,9 +77,6 @@ class plgSystemDfm extends CMSPlugin
         if ($field = $this->getUserField($user, $this->params['gameplans_field']) and $json = $field->rawvalue) {
             $userData['fields']['gameplans'] = json_decode($json, true);
         }
-        if ($field = $this->getUserField($user, $this->params['watchlists_field']) and $json = $field->rawvalue) {
-            $userData['fields']['watchlists'] = json_decode($json, true);
-        }
         return $userData;
     }
 
