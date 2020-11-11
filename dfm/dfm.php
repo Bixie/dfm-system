@@ -46,13 +46,26 @@ class plgSystemDfm extends CMSPlugin
         return [(int)$user->id, sprintf('License key added to user %s', $user->name),];
     }
 
-    public function getActiveLicenseKey (User $user): ?string
+    public function onCheckCsiSubscription (User $user): bool
+    {
+        try {
+            if ($field = $this->getUserField($user, $this->params['csi_email_field']) and $email = $field->rawvalue) {
+                $response = file_get_contents(str_replace('{email}', $email, $this->params['csi_check_url']));
+                return (bool) $response;
+            }
+        } catch (Exception $e) {
+            //ignore
+        }
+        return false;
+    }
+
+    public function getActiveLicenseKey (User $user): array
     {
         if ($user->id) {
             ['key' => $key, 'isTrial' => $isTrial,] = $this->getLicenseInfo($user);
-            return $isTrial ? $this->params['trial_license_key'] : $key;
+            return [($isTrial ? $this->params['trial_license_key'] : $key), $isTrial,];
         }
-        return null;
+        return [null, false,];
     }
 
     public function getUserDfmAppData (User $user): array
@@ -71,7 +84,7 @@ class plgSystemDfm extends CMSPlugin
         ];
         if ($field = $this->getUserField($user, $this->params['csi_email_field']) and $email = $field->rawvalue) {
             $userData['fields']['csi_email'] = $email;
-            $userData['csiActive'] = $this->checkCsiSubscription($email);
+            $userData['csiActive'] = !empty($email);
         }
         if ($field = $this->getUserField($user, $this->params['gameplans_field']) and $json = $field->rawvalue) {
             $userData['fields']['gameplans'] = json_decode($json, true);
@@ -133,7 +146,7 @@ class plgSystemDfm extends CMSPlugin
 
     protected function getLicenseInfo (User $user): array
     {
-        $license = ['key' => null, 'is_trial' => false, 'trial_end' => null,];
+        $license = ['key' => null, 'isTrial' => false, 'trialEnd' => null,];
         //get key from field
         if ($field = $this->getUserField($user, $this->params['license_key_field']) and $key = $field->rawvalue) {
             $license['key'] = $key;
@@ -159,18 +172,6 @@ class plgSystemDfm extends CMSPlugin
         } catch (Exception $e) {
             return null;
         }
-    }
-
-    protected function checkCsiSubscription (string $email): bool
-    {
-        try {
-            $response = file_get_contents(str_replace('{email}', $email, $this->params['csi_check_url']));
-
-            return (bool) $response;
-        } catch (Exception $e) {
-            //ignore
-        }
-        return false;
     }
 
     protected function setTrialStartDate (User $user, DateTime $date)
