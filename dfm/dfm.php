@@ -43,7 +43,7 @@ class plgSystemDfm extends CMSPlugin
             return [0, sprintf('License key field (%s) could not be set', $this->params['license_key_field']),];
         }
         //all good, return id
-        return [(int)$user->id, '',];
+        return [(int)$user->id, sprintf('License key added to user %s', $user->name),];
     }
 
     public function getActiveLicenseKey (User $user): ?string
