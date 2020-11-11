@@ -29,7 +29,7 @@ class plgSystemDfm extends CMSPlugin
         //set current date for trial start
         $user = JFactory::getUser($old_data['id']);
         if ($success && $isNew) {
-            $this->setUserField($user, $this->params['trial_date_field'], (new DateTime())->format('Y-m-d 00:00:00'));
+            $this->setTrialStartDate($user, new DateTime());
         }
     }
 
@@ -171,5 +171,24 @@ class plgSystemDfm extends CMSPlugin
             //ignore
         }
         return false;
+    }
+
+    protected function setTrialStartDate (User $user, DateTime $date)
+    {
+        //we have to do this with manual queries, since the user is not logged in yet, and has no rights to edit the
+        // trial date field
+        $query = $this->db->getQuery(true)->select('*')
+            ->from($this->db->quoteName('#__fields'))
+            ->where($this->db->quoteName('name') . ' = ' . $this->db->quote($this->params['trial_date_field']));
+        $this->db->setQuery($query);
+
+        if ($field = $this->db->loadObject()) {
+            $query = $this->db->getQuery(true)
+                ->insert($this->db->quoteName('#__fields_values'))
+                ->columns($this->db->quoteName(['field_id', 'item_id', 'value',]))
+                ->values(implode(',', [$field->id, $user->id, $this->db->quote($date->format('Y-m-d 00:00:00')),]));
+            $this->db->setQuery($query);
+            $this->db->execute();
+        }
     }
 }
