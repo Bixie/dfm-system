@@ -63,9 +63,13 @@ class plgSystemDfm extends CMSPlugin
     {
         if ($user->id) {
             ['key' => $key, 'isTrial' => $isTrial,] = $this->getLicenseInfo($user);
-            return [($isTrial ? $this->params['trial_license_key'] : $key), $isTrial,];
+            return [
+                ($isTrial ? $this->params['trial_license_key'] : $key),
+                ($isTrial ? $this->params['trial_license_email'] : $user->email),
+                $isTrial,
+                ];
         }
-        return [null, false,];
+        return [null, null, false,];
     }
 
     public function getUserDfmAppData (User $user): array

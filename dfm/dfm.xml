@@ -24,6 +24,13 @@
                         default=""
                 />
                 <field
+                        name="trial_license_email"
+                        type="text"
+                        label="E-mailadres voor trial-licentie"
+                        description=""
+                        default=""
+                />
+                <field
                         name="trial_license_duration"
                         type="list"
                         label="Lengte trial periode"
