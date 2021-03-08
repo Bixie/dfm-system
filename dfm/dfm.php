@@ -106,6 +106,18 @@ class plgSystemDfm extends CMSPlugin
         return $this->setUserField($user, $field_names[$field_name], $value);
     }
 
+    public function licenseKeyAlreadyExists (User $user, string $license_key): bool
+    {
+        $query = $this->db->getQuery(true)->select('count(*)')
+            ->from('#__fields_values AS v')
+            ->innerJoin('#__fields AS f ON f.id = v.field_id')
+            ->where('f.name = ' . $this->db->quote($this->params['license_key_field']))
+            ->where('v.value = ' . $this->db->quote($license_key))
+            ->where('v.item_id <> ' . $user->id);
+        $this->db->setQuery($query);
+        return (int)$this->db->loadResult() > 0;
+    }
+
     protected function getUserByEmail (string $email): ?User
     {
         $query = $this->db->getQuery(true)
