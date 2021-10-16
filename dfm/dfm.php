@@ -11,7 +11,7 @@ class plgSystemDfm extends CMSPlugin
     /**
      * @var \JDatabaseDriver
      */
-    public $db;
+    public ?JDatabaseDriver $db = null;
 
     /**
      * Constructor.
@@ -24,7 +24,7 @@ class plgSystemDfm extends CMSPlugin
         parent::__construct($subject, $config);
     }
 
-    public function onUserAfterSave (array $old_data, bool $isNew, bool $success)
+     public function onUserAfterSave (array $old_data, bool $isNew, bool $success)
     {
         //set current date for trial start
         $user = JFactory::getUser($old_data['id']);
@@ -33,6 +33,12 @@ class plgSystemDfm extends CMSPlugin
         }
     }
 
+    /**
+     * @param string $key
+     * @param array  $dr_data
+     * @return array
+     * @deprecated
+     */
     public function onNewLicenseKey (string $key, array $dr_data): array
     {
         $email = $dr_data['EMAIL'];
@@ -44,6 +50,11 @@ class plgSystemDfm extends CMSPlugin
         }
         //all good, return id
         return [(int)$user->id, sprintf('License key added to user %s', $user->name),];
+    }
+
+    public function setNewLicenseKey (string $key, User $user): bool
+    {
+        return $this->setUserField($user, $this->params['license_key_field'], $key);
     }
 
     public function onCheckCsiSubscription (User $user): bool
@@ -76,9 +87,13 @@ class plgSystemDfm extends CMSPlugin
             'isTrial' => $isTrial,
             'trialEnd' => $trialEnd,
             'csiActive' => false,
+            'name' => $user->name,
+            'email' => $user->email,
             'fields' => [
                 'license_key' => $key,
                 'csi_email' => '',
+                'vat_code' => '',
+                'country_code' => '',
                 'gameplans' => [],
             ],
         ];
@@ -88,6 +103,12 @@ class plgSystemDfm extends CMSPlugin
         }
         if ($field = $this->getUserField($user, $this->params['gameplans_field']) and $json = $field->rawvalue) {
             $userData['fields']['gameplans'] = json_decode($json, true);
+        }
+        if ($field = $this->getUserField($user, $this->params['country_code_field']) and $country_code = $field->rawvalue) {
+            $userData['fields']['country_code'] = $country_code;
+        }
+        if ($field = $this->getUserField($user, $this->params['vat_code_field']) and $vat_code = $field->rawvalue) {
+            $userData['fields']['vat_code'] = $vat_code;
         }
         return $userData;
     }

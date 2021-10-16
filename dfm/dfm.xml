@@ -111,6 +111,32 @@
                         value_field="title"
                         default=""
                 />
+                <field
+                        name="country_code_field"
+                        type="sql"
+                        label="Veld voor land"
+                        description=""
+                        sql_select="name,title"
+                        sql_from="#__fields"
+                        sql_where="context = 'com_users.user'"
+                        sql_order="ordering ASC"
+                        key_field="name"
+                        value_field="title"
+                        default=""
+                />
+                <field
+                        name="vat_code_field"
+                        type="sql"
+                        label="Veld voor BTW nummer"
+                        description=""
+                        sql_select="name,title"
+                        sql_from="#__fields"
+                        sql_where="context = 'com_users.user'"
+                        sql_order="ordering ASC"
+                        key_field="name"
+                        value_field="title"
+                        default=""
+                />
             </fieldset>
         </fields>
     </config>
