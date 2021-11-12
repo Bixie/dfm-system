@@ -104,10 +104,14 @@ class plgSystemDfm extends CMSPlugin
         if ($field = $this->getUserField($user, $this->params['gameplans_field']) and $json = $field->rawvalue) {
             $userData['fields']['gameplans'] = json_decode($json, true);
         }
-        if ($field = $this->getUserField($user, $this->params['country_code_field']) and $country_code = $field->rawvalue) {
+        if ($fieldKey = $this->params['country_code_field'] and
+            $field = $this->getUserField($user, $fieldKey) and
+            $country_code = $field->rawvalue) {
             $userData['fields']['country_code'] = $country_code;
         }
-        if ($field = $this->getUserField($user, $this->params['vat_code_field']) and $vat_code = $field->rawvalue) {
+        if ($fieldKey = $this->params['vat_code_field'] and
+            $field = $this->getUserField($user, $fieldKey) and
+            $vat_code = $field->rawvalue) {
             $userData['fields']['vat_code'] = $vat_code;
         }
         return $userData;
