@@ -57,10 +57,14 @@ class plgSystemDfm extends CMSPlugin
         return $this->setUserField($user, $this->params['license_key_field'], $key);
     }
 
-    public function onCheckCsiSubscription (User $user): bool
+    public function onCheckCsiSubscription (User $user, string $email = null): bool
     {
         try {
-            if ($field = $this->getUserField($user, $this->params['csi_email_field']) and $email = $field->rawvalue) {
+            if (!$email) {
+                $field = $this->getUserField($user, $this->params['csi_email_field']);
+                $email = $field?->rawvalue;
+            }
+            if ($email) {
                 $response = file_get_contents(str_replace('{email}', $email, $this->params['csi_check_url']));
                 return (bool) $response;
             }
