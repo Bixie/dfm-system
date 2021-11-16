@@ -96,8 +96,7 @@ class plgSystemDfm extends CMSPlugin
             'fields' => [
                 'license_key' => $key,
                 'csi_email' => '',
-                'vat_code' => '',
-                'country_code' => '',
+                'purpose' => '',
                 'gameplans' => [],
             ],
         ];
@@ -108,10 +107,10 @@ class plgSystemDfm extends CMSPlugin
         if ($field = $this->getUserField($user, $this->params['gameplans_field']) and $json = $field->rawvalue) {
             $userData['fields']['gameplans'] = json_decode($json, true);
         }
-        if ($fieldKey = $this->params['country_code_field'] and
+        if ($fieldKey = $this->params['purpose'] and
             $field = $this->getUserField($user, $fieldKey) and
-            $country_code = $field->rawvalue) {
-            $userData['fields']['country_code'] = $country_code;
+            $purpose = $field->rawvalue) {
+            $userData['fields']['purpose'] = $purpose;
         }
         if ($fieldKey = $this->params['vat_code_field'] and
             $field = $this->getUserField($user, $fieldKey) and
@@ -126,7 +125,7 @@ class plgSystemDfm extends CMSPlugin
         $field_names = [
             'license_key' => $this->params['license_key_field'],
             'gameplans' => $this->params['gameplans_field'],
-            'watchlists' => $this->params['watchlists_field'],
+            'purpose' => $this->params['purpose_field'],
             'csi_email' => $this->params['csi_email_field'],
         ];
         if (!isset($field_names[$field_name])) {
