@@ -54,7 +54,10 @@ class plgSystemDfm extends CMSPlugin
 
     public function setNewLicenseKey (string $key, User $user): bool
     {
-        return $this->setUserField($user, $this->params['license_key_field'], $key);
+        if ($field = $this->getUserField($user, $this->params['license_key_field']) and !$field->rawvalue) {
+            return $this->setUserField($user, $this->params['license_key_field'], $key);
+        }
+        return true;
     }
 
     public function onCheckCsiSubscription (User $user, string $email = null): bool
