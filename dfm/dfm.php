@@ -107,7 +107,7 @@ class plgSystemDfm extends CMSPlugin
         if ($field = $this->getUserField($user, $this->params['gameplans_field']) and $json = $field->rawvalue) {
             $userData['fields']['gameplans'] = json_decode($json, true);
         }
-        if ($fieldKey = $this->params['purpose'] and
+        if ($fieldKey = $this->params['purpose_field'] and
             $field = $this->getUserField($user, $fieldKey) and
             $purpose = $field->rawvalue) {
             $userData['fields']['purpose'] = $purpose;
@@ -125,7 +125,6 @@ class plgSystemDfm extends CMSPlugin
         $field_names = [
             'license_key' => $this->params['license_key_field'],
             'gameplans' => $this->params['gameplans_field'],
-            'purpose' => $this->params['purpose_field'],
             'csi_email' => $this->params['csi_email_field'],
         ];
         if (!isset($field_names[$field_name])) {
