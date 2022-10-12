@@ -2,4 +2,4 @@
 
 Joomla! System plugin for DFM processor.
 
-In folder `/html` are template overrides.
+In folder `/html` are template overrides. (of unknown use???)

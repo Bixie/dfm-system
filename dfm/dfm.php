@@ -5,89 +5,91 @@ defined('_JEXEC') or die;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\User\User;
+use Joomla\Event\Event;
+use Joomla\Event\SubscriberInterface;
+use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
 
-class plgSystemDfm extends CMSPlugin
+class PlgSystemDfm extends CMSPlugin implements SubscriberInterface
 {
     /**
      * @var \JDatabaseDriver
      */
     public ?JDatabaseDriver $db = null;
 
-    /**
-     * Constructor.
-     *
-     * @param \JEventDispatcher $subject
-     * @param array             $config
-     */
-    public function __construct(&$subject, $config = array())
+    public static function getSubscribedEvents (): array
     {
-        parent::__construct($subject, $config);
+        $methods = [
+            'getActiveLicenseKey',
+            'licenseKeyAlreadyExists',
+            'setNewLicenseKey',
+            'getUserDfmAppData',
+            'checkCsiSubscription',
+            'updateUserField',
+            'onUserAfterSave',
+        ];
+        return array_combine($methods, $methods);
     }
 
-     public function onUserAfterSave (array $old_data, bool $isNew, bool $success)
+     public function onUserAfterSave (Event $event): void
     {
+        $data = $event[0];
+        $isNew = $event[1];
+        $success = $event[2];
         //set current date for trial start
-        $user = JFactory::getUser($old_data['id']);
+        $user = JFactory::getUser($data['id']);
         if ($success && $isNew) {
             $this->setTrialStartDate($user, new DateTime());
         }
     }
 
-    /**
-     * @param string $key
-     * @param array  $dr_data
-     * @return array
-     * @deprecated
-     */
-    public function onNewLicenseKey (string $key, array $dr_data): array
+    public function setNewLicenseKey (Event $event): void
     {
-        $email = $dr_data['EMAIL'];
-        if (!$user = $this->getUserByEmail($email)) {
-            return [0, sprintf('User with email %s not found', $email),];
-        }
-        if (!$this->setUserField($user, $this->params['license_key_field'], $key)) {
-            return [0, sprintf('License key field (%s) could not be set', $this->params['license_key_field']),];
-        }
-        //all good, return id
-        return [(int)$user->id, sprintf('License key added to user %s', $user->name),];
-    }
-
-    public function setNewLicenseKey (string $key, User $user): bool
-    {
+        /** @var User $user */
+        $user = $event['user'];
+        $license_key = $event['license_key'];
         if ($field = $this->getUserField($user, $this->params['license_key_field']) and !$field->rawvalue) {
-            return $this->setUserField($user, $this->params['license_key_field'], $key);
+            $this->setUserField($user, $this->params['license_key_field'], $license_key);
         }
-        return true;
     }
 
-    public function onCheckCsiSubscription (User $user, string $email = null): bool
+    public function checkCsiSubscription (Event $event): void
     {
+        /** @var User $user */
+        $user = $event['user'];
         try {
-            if (!$email) {
+            if (!isset($event['email'])) {
                 $field = $this->getUserField($user, $this->params['csi_email_field']);
                 $email = $field?->rawvalue;
+            } else {
+                $email = $event['email'];
             }
             if ($email) {
                 $response = file_get_contents(str_replace('{email}', $email, $this->params['csi_check_url']));
-                return (bool) $response;
+                $event->setArgument('result', (bool) $response);
+                return;
             }
         } catch (Exception $e) {
             //ignore
         }
-        return false;
+        $event->setArgument('result', false);
     }
 
-    public function getActiveLicenseKey (User $user): array
+    public function getActiveLicenseKey (Event $event): void
     {
+        /** @var User $user */
+        $user = $event['user'];
         if ($user->id) {
             ['key' => $key, 'isTrial' => $isTrial,] = $this->getLicenseInfo($user);
-            return [($isTrial ? $this->params['trial_license_key'] : $key), $isTrial,];
+            $event->setArgument('result', [($isTrial ? $this->params['trial_license_key'] : $key), $isTrial,]);
+        } else {
+            $event->setArgument('result', [null, false,]);
         }
-        return [null, false,];
     }
 
-    public function getUserDfmAppData (User $user): array
+    public function getUserDfmAppData (Event $event): void
     {
+        /** @var User $user */
+        $user = $event['user'];
         ['key' => $key, 'isTrial' => $isTrial, 'trialEnd' => $trialEnd,] = $this->getLicenseInfo($user);
         $userData = [
             'noLicense' => !$key,
@@ -120,24 +122,35 @@ class plgSystemDfm extends CMSPlugin
             $vat_code = $field->rawvalue) {
             $userData['fields']['vat_code'] = $vat_code;
         }
-        return $userData;
+        $event->setArgument('result', $userData);
     }
 
-    public function updateUserField (User $user, string $field_name, string $value): bool
+    public function updateUserField (Event $event): void
     {
+        /** @var User $user */
+        $user = $event['user'];
+        $field_name = $event['field_name'];
+        $value = $event['value'];
         $field_names = [
             'license_key' => $this->params['license_key_field'],
             'gameplans' => $this->params['gameplans_field'],
             'csi_email' => $this->params['csi_email_field'],
         ];
         if (!isset($field_names[$field_name])) {
-            return false;
+            $event->setArgument('result', false);
+            return;
         }
-        return $this->setUserField($user, $field_names[$field_name], $value);
+        $event->setArgument(
+            'result',
+            $this->setUserField($user, $field_names[$field_name], $value)
+        );
     }
 
-    public function licenseKeyAlreadyExists (User $user, string $license_key): bool
+    public function licenseKeyAlreadyExists (Event $event): void
     {
+        /** @var User $user */
+        $user = $event['user'];
+        $license_key = $event['license_key'];
         $query = $this->db->getQuery(true)->select('count(*)')
             ->from('#__fields_values AS v')
             ->innerJoin('#__fields AS f ON f.id = v.field_id')
@@ -145,7 +158,7 @@ class plgSystemDfm extends CMSPlugin
             ->where('v.value = ' . $this->db->quote($license_key))
             ->where('v.item_id <> ' . $user->id);
         $this->db->setQuery($query);
-        return (int)$this->db->loadResult() > 0;
+        $event->setArgument('result', (int)$this->db->loadResult() > 0);
     }
 
     protected function getUserByEmail (string $email): ?User
@@ -168,7 +181,6 @@ class plgSystemDfm extends CMSPlugin
     {
         // Loading the model
         BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_fields/models', 'FieldsModel');
-        /** @var FieldsModelField $model */
         $model = BaseDatabaseModel::getInstance('Field', 'FieldsModel', array('ignore_request' => true));
         if ($field = $this->getUserField($user, $name)) {
             return $model->setFieldValue($field->id, $user->id, $value);
